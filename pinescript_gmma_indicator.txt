@@ -1,0 +1,232 @@
+//@version=5
+indicator('GMMA', overlay=true)
+
+//inputs
+_Period1 = input(3, 'EMA1 Period')
+_Period2 = input(5, 'EMA2 Period')
+_Period3 = input(8, 'EMA3 Period')
+_Period4 = input(10, 'EMA4 Period')
+_Period5 = input(12, 'EMA5 Period')
+_Period6 = input(15, 'EMA6 Period')
+_Period7 = input(30, 'EMA7 Period')
+_Period8 = input(35, 'EMA8 Period')
+_Period9 = input(40, 'EMA9 Period')
+_Period10 = input(45, 'EMA10 Period')
+_Period11 = input(50, 'EMA11 Period')
+_Period12 = input(60, 'EMA12 Period')
+
+
+//calculate ema
+ema1 = ta.ema(close, _Period1)
+ema2 = ta.ema(close, _Period2)
+ema3 = ta.ema(close, _Period3)
+ema4 = ta.ema(close, _Period4)
+ema5 = ta.ema(close, _Period5)
+ema6 = ta.ema(close, _Period6)
+ema7 = ta.ema(close, _Period7)
+ema8 = ta.ema(close, _Period8)
+ema9 = ta.ema(close, _Period9)
+ema10 = ta.ema(close, _Period10)
+ema11 = ta.ema(close, _Period11)
+ema12 = ta.ema(close, _Period12)
+
+plot(ema1, color=color.new(color.green, 0), title='short1')
+plot(ema2, color=color.new(color.green, 0), title='short2')
+plot(ema3, color=color.new(color.green, 0), title='short3')
+plot(ema4, color=color.new(color.green, 0), title='short4')
+plot(ema5, color=color.new(color.green, 0), title='short5')
+plot(ema6, color=color.new(color.green, 0), title='short6')
+
+plot(ema7, color=color.new(color.red, 0), title='long1')
+plot(ema8, color=color.new(color.red, 0), title='long2')
+plot(ema9, color=color.new(color.red, 0), title='long3')
+plot(ema10, color=color.new(color.red, 0), title='long4')
+plot(ema11, color=color.new(color.red, 0), title='long5')
+plot(ema12, color=color.new(color.red, 0), title='long6')
+
+
+colfastL = ema1 > ema2 and ema2 > ema3 and ema3 > ema4 and ema4 > ema5 and ema5 > ema6
+colfastS = ema1 < ema2 and ema2 < ema3 and ema3 < ema4 and ema4 < ema5 and ema5 < ema6
+//Slow EMA Color Rules
+colslowL = ema7 > ema8 and ema8 > ema9 and ema9 > ema10 and ema10 > ema11 and ema11 > ema12
+colslowS = ema7 < ema8 and ema8 < ema9 and ema9 < ema10 and ema10 < ema11 and ema11 < ema12
+//Fast EMA Final Color Rules
+
+buy1 = ema1 > ema12
+sell1 = ema1 < ema12
+// plotshape(buy, color=color.new(color.green, 0), style=shape.labelup, text='Buy', textcolor=color.new(color.white, 0), location=location.belowbar, size=size.small)
+// plotshape(sell, color=color.new(color.red, 0), style=shape.labeldown, text='Sell', textcolor=color.new(color.white, 0), location=location.abovebar, size=size.small)
+
+PHI = (1 + math.sqrt(5)) / 2
+PI = 104348 / 33215
+
+BULL = 1
+BEAR = -1
+NONE = 0
+
+// ╔══════════════════════════════════════╗
+// ║                                      ║
+// ║            Colors                    ║
+// ║                                      ║
+// ╚══════════════════════════════════════╝
+
+
+// v3 Style Gradient
+GRN01 = #7CFC00
+GRN02 = #32CD32
+GRN03 = #228B22
+GRN04 = #006400
+GRN05 = #008000
+GRN06 = #093507
+RED01 = #FF4500
+RED02 = #FF0000
+RED03 = #B22222
+RED04 = #8B0000
+RED05 = #800000
+RED06 = #330d06
+
+
+
+// ──────────[ v3 Style Colors ]
+AQUA = #00FFFF
+BLACK = #000000
+BLUE = #0000FF
+FUCHSIA = #FF00FF
+GRAY = #808080
+GREEN = #008000
+LIME = #00FF00
+MAROON = #800000
+NAVY = #000080
+OLIVE = #808000
+ORANGE = #FF7F00
+PURPLE = #800080
+RUBI = #FF0000
+SILVER = #C0C0C0
+TEAL = #008080
+YELLOW = #FFFF00
+WHITE = #FFFFFF
+
+
+
+// ╔══════════════════════════════════════╗
+// ║                                      ║
+// ║            functions ()              ║
+// ║                                      ║
+// ╚══════════════════════════════════════╝
+
+
+// ──────────[ Moving Average Color ]
+//  
+maColor(_ma, _maRef) =>
+    diffMA = ta.change(_ma)
+    macol = diffMA >= 0 and _ma > _maRef ? LIME : diffMA < 0 and _ma > _maRef ? MAROON : diffMA <= 0 and _ma < _maRef ? RUBI : diffMA >= 0 and _ma < _maRef ? GREEN : GRAY
+    macol
+
+
+
+// ╔══════════════════════════════════════════════════════════════════════════════╗
+// ║                                                                              ║
+// ║                                main ( )                                      ║
+// ║                                                                              ║
+// ╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+// ────────────────────[ Input Parameters ]
+
+_10 = input(false, '───────────[ Madrid Ribbon]───────────')
+i_exp = input(true, title='Expnential MA')
+
+
+
+
+// ────────────────────[ Processing ]
+
+src = close
+
+ma05 = i_exp ? ta.ema(src, 05) : ta.sma(src, 05)
+ma10 = i_exp ? ta.ema(src, 10) : ta.sma(src, 10)
+ma15 = i_exp ? ta.ema(src, 15) : ta.sma(src, 15)
+ma20 = i_exp ? ta.ema(src, 20) : ta.sma(src, 20)
+ma25 = i_exp ? ta.ema(src, 25) : ta.sma(src, 25)
+ma30 = i_exp ? ta.ema(src, 30) : ta.sma(src, 30)
+ma35 = i_exp ? ta.ema(src, 35) : ta.sma(src, 35)
+ma40 = i_exp ? ta.ema(src, 40) : ta.sma(src, 40)
+ma45 = i_exp ? ta.ema(src, 45) : ta.sma(src, 45)
+ma50 = i_exp ? ta.ema(src, 50) : ta.sma(src, 50)
+ma55 = i_exp ? ta.ema(src, 55) : ta.sma(src, 55)
+ma60 = i_exp ? ta.ema(src, 60) : ta.sma(src, 60)
+ma65 = i_exp ? ta.ema(src, 65) : ta.sma(src, 65)
+ma70 = i_exp ? ta.ema(src, 70) : ta.sma(src, 70)
+ma75 = i_exp ? ta.ema(src, 75) : ta.sma(src, 75)
+ma80 = i_exp ? ta.ema(src, 80) : ta.sma(src, 80)
+ma85 = i_exp ? ta.ema(src, 85) : ta.sma(src, 85)
+ma90 = i_exp ? ta.ema(src, 90) : ta.sma(src, 90)
+ma100 = i_exp ? ta.ema(src, 100) : ta.sma(src, 100)
+
+
+
+// ────────────────────[ Plot ]
+//
+plot(ma05, color=maColor(ma05, ma100), style=plot.style_line, title='MMA05', linewidth=3)
+plot(ma10, color=maColor(ma10, ma100), style=plot.style_line, title='MMA10', linewidth=1)
+plot(ma15, color=maColor(ma15, ma100), style=plot.style_line, title='MMA15', linewidth=1)
+plot(ma20, color=maColor(ma20, ma100), style=plot.style_line, title='MMA20', linewidth=1)
+plot(ma25, color=maColor(ma25, ma100), style=plot.style_line, title='MMA25', linewidth=1)
+plot(ma30, color=maColor(ma30, ma100), style=plot.style_line, title='MMA30', linewidth=1)
+plot(ma35, color=maColor(ma35, ma100), style=plot.style_line, title='MMA35', linewidth=1)
+plot(ma40, color=maColor(ma40, ma100), style=plot.style_line, title='MMA40', linewidth=1)
+plot(ma45, color=maColor(ma45, ma100), style=plot.style_line, title='MMA45', linewidth=1)
+plot(ma50, color=maColor(ma50, ma100), style=plot.style_line, title='MMA50', linewidth=1)
+plot(ma55, color=maColor(ma55, ma100), style=plot.style_line, title='MMA55', linewidth=1)
+plot(ma60, color=maColor(ma60, ma100), style=plot.style_line, title='MMA60', linewidth=1)
+plot(ma65, color=maColor(ma65, ma100), style=plot.style_line, title='MMA65', linewidth=1)
+plot(ma70, color=maColor(ma70, ma100), style=plot.style_line, title='MMA70', linewidth=1)
+plot(ma75, color=maColor(ma75, ma100), style=plot.style_line, title='MMA75', linewidth=1)
+plot(ma80, color=maColor(ma80, ma100), style=plot.style_line, title='MMA80', linewidth=1)
+plot(ma85, color=maColor(ma85, ma100), style=plot.style_line, title='MMA85', linewidth=1)
+plot(ma90, color=maColor(ma90, ma100), style=plot.style_line, title='MMA90', linewidth=3)
+
+
+
+buy2 = ma05 > ma90
+sell2 = ma05 < ma90
+
+atrPeriod = input(10, "ATR Length")
+factor = input.float(3.0, "Factor", step = 0.01)
+
+[supertrend, direction] = ta.supertrend(factor, atrPeriod)
+
+bodyMiddle = plot((open + close) / 2, display=display.none)
+upTrend = plot(direction < 0 ? supertrend : na, "Up Trend", color = color.green, style=plot.style_linebr)
+downTrend = plot(direction < 0? na : supertrend, "Down Trend", color = color.red, style=plot.style_linebr)
+
+fill(bodyMiddle, upTrend, color.new(color.green, 90), fillgaps=false)
+fill(bodyMiddle, downTrend, color.new(color.red, 90), fillgaps=false)
+
+buy3 = direction < 0
+sell3 = direction > 0
+
+buy0 = buy1 and buy2 and buy3
+sell0 = sell1 and sell2 and sell3
+
+g = buy0 and not buy0[1]
+r = sell0 and not sell0[1]
+
+rg = 0
+rg := r ? 1 : g ? 2 : nz(rg[1])
+
+buy11 = 0
+buy11 := r ? 0 : g ? 1 : nz(buy11[1])
+sell11 = 0
+sell11 := r ? 1 : g ? 0 : nz(sell11[1])
+
+buy = buy11 and not buy11[1]
+sell = sell11 and not sell11[1]
+
+plotshape(buy, color=color.new(color.green, 0), style=shape.labelup, text='Buy', textcolor=color.new(color.white, 0), location=location.belowbar, size=size.small)
+plotshape(sell, color=color.new(color.red, 0), style=shape.labeldown, text='Sell', textcolor=color.new(color.white, 0), location=location.abovebar, size=size.small)
+
+
+alertcondition(condition=buy, title="Buy")
+alertcondition(condition=sell, title="Sell")
+ 
